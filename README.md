@@ -6,7 +6,7 @@ ATLANTIS AI is an advanced chatbot addon that can be used on multiple browsers a
 
 #### Firefox
 
-1. Download the source code from our [GitHub repository](https://github.com/atlantis-ai/atlantis-ai).
+1. Download the source code from our [GitHub repository](https://github.com/mymmc/atlantis-ai).
 2. Open Firefox and navigate to about:addons.
 3. Click on the gear icon in the top right corner and select "Install Add-on From File".
 4. Navigate to the downloaded source code and select the .xpi file.

@@ -31,13 +31,13 @@ function selectedTabContent(selectedTab) {
     case 5:
       return splitterTabContent();
     case 6:
-      return newsletterTabContent();
+      return saveCredentials();
     default:
       return generalTabContent();
   }
 }
 function settingsModalContent(initialTab = 0) {
-  const settingsTabs = ['General', 'Auto Sync', 'models', 'Custom Prompts', 'Export', 'Splitter', 'Newsletter'];
+  const settingsTabs = ['General', 'Auto Sync', 'models', 'Custom Prompts', 'Export', 'Splitter', 'List of Logins and Passwords'];
   let activeTab = initialTab;
   // create history modal content
   const content = document.createElement('div');
@@ -178,7 +178,7 @@ function generalTabContent() {
     // open file picker
     const filePicker = document.createElement('input');
     filePicker.type = 'file';
-    filePicker.accept = '.json';
+    filePicker.accept = '.json', '.doc', '.pdf', '.docx', '.xls', '.xlsx', '.txt', '.csv';
     filePicker.addEventListener('change', (event) => {
       const file = event.target.files[0];
       const reader = new FileReader();
@@ -377,37 +377,6 @@ function generalTabContent() {
     feedbackLink.style = 'color: #999; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
   });
   // linkWrapper.appendChild(feedbackLink);
-
-  // add link for sponsorship
-  const sponsorLink = document.createElement('a');
-  sponsorLink.href = 'https://ezi.notion.site/Sponsorship-3d0442f1e8634978902cf366c44be016';
-  sponsorLink.target = '_blank';
-  sponsorLink.textContent = 'Sponsorship ➜';
-  sponsorLink.style = 'color: #999; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
-  sponsorLink.addEventListener('mouseover', () => {
-    sponsorLink.style = 'color: gold; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
-  });
-  sponsorLink.addEventListener('mouseout', () => {
-    sponsorLink.style = 'color: #999; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
-  });
-  linkWrapper.appendChild(sponsorLink);
-
-  // add link for sponsorship
-  const faqLink = document.createElement('a');
-  faqLink.href = 'https://ezi.notion.site/Superpower-ChatGPT-FAQ-9d43a8a1c31745c893a4080029d2eb24';
-  faqLink.target = '_blank';
-  faqLink.textContent = 'FAQ ➜';
-  faqLink.style = 'color: #999; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
-  faqLink.addEventListener('mouseover', () => {
-    faqLink.style = 'color: gold; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
-  });
-  faqLink.addEventListener('mouseout', () => {
-    faqLink.style = 'color: #999; font-size: 12px; margin: 8px 0;min-width: 25%;text-align:center;padding-right: 8px;';
-  });
-  linkWrapper.appendChild(faqLink);
-  content.appendChild(linkWrapper);
-
-  return content;
 }
 function toggleCustomWidthInput(customConversationWidth) {
   chrome.storage.local.get(['settings'], (result) => {
@@ -734,7 +703,7 @@ function customPromptTabContent() {
     const customInstructionSection = document.createElement('div');
     customInstructionSection.style = 'display: flex; flex-direction: column; justify-content: start; align-items: start; width: 100%; margin: 16px 0;';
 
-    const customInstructionSwitch = createSwitch('Custom Instruction', 'Custom instruction will be added to the end of each promps. You can use it to add instructions that you like to include in every prompt. For example, you can add "Please repeat the prompt after me.", or "Please refrain from writing warnings about your knowledge cutoff" to the custom instruction, and it will be added to the end of every prompt.(Make sure to add a space or new-line in the beggining!)', 'useCustomInstruction', false, toggleCustomInstructionInput, 'Requires Auto-Sync', !autoSync);
+    const customInstructionSwitch = createSwitch('Custom Instruction', 'Custom instruction will be added to the end of each promps. You can use it to add instructions that you like to include in every prompt. For example, you can add "Please repeat the prompt after me.", or "Please refrain from writing warnings about your knowledge cutoff" to the custom instruction, and it will be added to the end of every prompt.(Make sure to add a space or new-line in the beggining!)', 'useCustomInstruction', true, toggleCustomInstructionInput, 'Requires Auto-Sync', !autoSync);
 
     const customInstructionInputWrapper = document.createElement('div');
     customInstructionInputWrapper.style = 'display: flex; flex-direction: row; justify-content: start; align-items: center; width: 100%; margin-bottom: 8px;';
@@ -921,7 +890,7 @@ function splitterTabContent() {
 
     const autoSplitChunkSizeLabel = document.createElement('div');
     autoSplitChunkSizeLabel.style = 'display: flex; flex-direction: row; justify-content: start; align-items: center; width: 100%; margin: 8px 0; color:white;';
-    autoSplitChunkSizeLabel.textContent = 'Auto Split Chunk Size (1000-16000)';
+    autoSplitChunkSizeLabel.textContent = 'Auto Split Chunk Size (5000-250000)';
 
     const autoSplitChunkSizeInput = document.createElement('input');
     autoSplitChunkSizeInput.id = 'split-prompt-limit-input';
@@ -1016,20 +985,54 @@ Summary: A short summary of the last chunk. Keep important facts and names in th
       autoSplitInitialPromptText.value = autoSummarize ? autoSplitChunkPromptSummarize : autoSplitChunkPrompt;
     });
   });
+
+  // Function to create a text input field
+function createTextInput(labelText, placeholder, inputId, inputType = 'text') {
+  const inputContainer = document.createElement('div');
+
+  const label = document.createElement('label');
+  label.textContent = labelText;
+  inputContainer.appendChild(label);
+
+  const input = document.createElement('input');
+  input.type = inputType;
+  input.placeholder = placeholder;
+  input.id = inputId;
+  inputContainer.appendChild(input);
+
+  return inputContainer;
 }
-function newsletterTabContent() {
+function credentialsTabContent() {
   const content = document.createElement('div');
   content.id = 'settings-modal-tab-content';
   content.style = 'display: flex; flex-direction: column; justify-content: start; align-items: start;overflow-y: scroll; width:100%; padding: 16px; margin-width:100%; height: 100%;';
-  // daily newsletter
-  const dailyNewsletterSwitch = createSwitch('Hide daily newsletter', 'Automatically hide the daily newsletter popup.', 'hideNewsletter', false);
-  content.appendChild(dailyNewsletterSwitch);
 
-  // const sendNewsletterToEmailSwitch = createSwitch('Email newsletter', 'Send the Superpower ChatGPT daily newsletter to my email', 'emailNewsletter', false, updateEmailNewsletter, 'Coming soon');
+  // Login credentials
+  const usernameInput = createTextInput('Username', 'Enter your username', 'usernameInput');
+  const passwordInput = createTextInput('Password', 'Enter your password', 'passwordInput', 'password');
+  content.appendChild(usernameInput);
+  content.appendChild(passwordInput);
 
-  // content.appendChild(sendNewsletterToEmailSwitch);
+  // Save button
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save Credentials';
+  saveButton.addEventListener('click', saveCredentials);
+  content.appendChild(saveButton);
+
   return content;
 }
+
+function saveCredentials() {
+  const username = document.getElementById('usernameInput').value;
+  const password = document.getElementById('passwordInput').value;
+  
+  // Store the credentials or perform any other necessary actions
+  // For example, you can make an API call to store the credentials on a server
+  
+  // Show a success message
+  alert('Credentials saved successfully!');
+}
+
 function createSwitch(title, subtitle, settingsKey, defaultValue, callback = null, tag = '', disabled = false) {
   const switchWrapper = document.createElement('div');
   switchWrapper.style = 'display: flex; flex-direction: column; justify-content: start; align-items: start; width: 100%; margin: 8px 0;';
@@ -1246,7 +1249,7 @@ function initializeSettings() {
         autoSync: result.settings?.autoSync !== undefined ? result.settings.autoSync : true,
         safeMode: result.settings?.safeMode !== undefined ? result.settings.safeMode : true,
         promptHistory: result.settings?.promptHistory !== undefined ? result.settings.promptHistory : true,
-        copyMode: result.settings?.copyMode !== undefined ? result.settings.copyMode : false,
+        copyMode: result.settings?.copyMode !== undefined ? result.settings.copyMode : true,
         hideBottomSidebar: result.settings?.hideBottomSidebar !== undefined ? result.settings.hideBottomSidebar : false,
         hideNewsletter: result.settings?.hideNewsletter !== undefined ? result.settings.hideNewsletter : false,
         customInstruction: result.settings?.customInstruction !== undefined ? result.settings.customInstruction : '',
@@ -1255,12 +1258,12 @@ function initializeSettings() {
         conversationWidth: result.settings?.conversationWidth !== undefined ? result.settings.conversationWidth : 50,
         saveHistory: result.settings?.saveHistory !== undefined ? result.settings.saveHistory : true,
         emailNewsletter: result.settings?.emailNewsletter !== undefined ? result.settings.emailNewsletter : false,
-        autoClick: result.settings?.autoClick !== undefined ? result.settings.autoClick : false,
+        autoClick: result.settings?.autoClick !== undefined ? result.settings.autoClick : true,
         showGpt4Counter: result.settings?.showGpt4Counter !== undefined ? result.settings.showGpt4Counter : true,
-        autoSummarize: result.settings?.autoSummarize !== undefined ? result.settings.autoSummarize : false,
+        autoSummarize: result.settings?.autoSummarize !== undefined ? result.settings.autoSummarize : true,
         autoSplit: result.settings?.autoSplit !== undefined ? result.settings.autoSplit : true,
-        autoSplitLimit: result.settings?.autoSplitLimit !== undefined ? result.settings.autoSplitLimit : 8000,
-        autoSplitInitialPrompt: result.settings?.autoSplitInitialPrompt !== undefined ? result.settings?.autoSplitInitialPrompt : `Act like a document/text loader until you load and remember the content of the next text/s or document/s.
+        autoSplitLimit: result.settings?.autoSplitLimit !== undefined ? result.settings.autoSplitLimit : 250000,
+        autoSplitInitialPrompt: result.settings?.autoSplitInitialPrompt !== undefined ? result.settings?.autoSplitInitialPrompt : `Act like a pdf/excel sheet/document/text loader until you load and remember the content of the next text/s or document/s.
 There might be multiple files, each file is marked by name in the format ### DOCUMENT NAME.
 I will send them to you in chunks. Each chunk starts will be noted as [START CHUNK x/TOTAL], and the end of this chunk will be noted as [END CHUNK x/TOTAL], where x is the number of current chunks, and TOTAL is the number of all chunks I will send you.
 I will split the message in chunks, and send them to you one by one. For each message follow the instructions at the end of the message.
@@ -1269,7 +1272,7 @@ Let's begin:
 `,
         autoSplitChunkPrompt: result.settings?.autoSplitChunkPrompt !== undefined ? result.settings?.autoSplitChunkPrompt : `Reply with OK: [CHUNK x/TOTAL]
 Don't reply with anything else!`,
-        conversationTimestamp: result.settings?.conversationTimestamp !== undefined ? result.settings.conversationTimestamp : false,
+        conversationTimestamp: result.settings?.conversationTimestamp !== undefined ? result.settings.conversationTimestamp : true,
         autoHideTopNav: result.settings?.autoHideTopNav !== undefined ? result.settings.autoHideTopNav : false,
         navOpen: result.settings?.navOpen !== undefined ? result.settings.navOpen : true,
         showPinNav: result.settings?.showPinNav !== undefined ? result.settings.showPinNav : true,
